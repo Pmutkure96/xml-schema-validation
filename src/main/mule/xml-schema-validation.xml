@@ -15,6 +15,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 				<http:body ><![CDATA[#[payload]]]></http:body>
 			</http:error-response>
 		</http:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="8097e4f4-c6b6-432e-8266-8e1c6264bc35" message="flow started f2"/>
 		<xml-module:validate-schema doc:name="Validate schema" doc:id="0aec7789-4300-4b82-adce-4381551781b4" schemas="Schema/xmlSchema.xsd"/>
 		<set-payload value="xml is valid" doc:name="Set Payload" doc:id="3c5b72f8-6aba-4b98-a6ef-ff3c285cf2bb" />
 		<logger level="INFO" doc:name="Logger" doc:id="dc9d8aaf-eae5-4f45-9270-659c563f7b39" message="flow Ended"/>
