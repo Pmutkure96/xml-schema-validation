@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:xml-module="http://www.mulesoft.org/schema/mule/xml-module"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/xml-module http://www.mulesoft.org/schema/mule/xml-module/current/mule-xml-module.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="98adbd56-a6b5-4344-a061-45444fe5524f" >
+		<http:listener-connection host="0.0.0.0" port="8086" />
+	</http:listener-config>
+	<flow name="xml-schema-validationFlow" doc:id="2cd88d0c-73e9-4e17-bada-2b603b106ac6" >
+		<http:listener doc:name="Listener" doc:id="72eb8825-7c10-4dc4-9630-59b37c138e7f" config-ref="HTTP_Listener_config" path="/xml">
+			<http:error-response statusCode="#[vars.httpStatusCode]" >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<xml-module:validate-schema doc:name="Validate schema" doc:id="0aec7789-4300-4b82-adce-4381551781b4" schemas="Schema/xmlSchema.xsd"/>
+		<set-payload value="xml is valid" doc:name="Set Payload" doc:id="3c5b72f8-6aba-4b98-a6ef-ff3c285cf2bb" />
+		<logger level="INFO" doc:name="Logger" doc:id="dc9d8aaf-eae5-4f45-9270-659c563f7b39" message="flow Ended"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6feeb06a-97c9-47de-acb5-49a3dd8715b3" type="XML-MODULE:SCHEMA_NOT_HONOURED">
+				<set-variable value="400" doc:name="Set Variable" doc:id="60717584-5786-4507-895f-b33ba2d3f25d" variableName="httpStatusCode"/>
+				<ee:transform doc:name="Transform Message" doc:id="5cad5221-57a5-4663-99bb-b472fce6fbf7" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	msg: error.description
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
